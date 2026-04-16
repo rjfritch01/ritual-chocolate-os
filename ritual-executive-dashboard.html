@@ -1,0 +1,1148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ritual Chocolate — Executive Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;0,600;1,400&family=DM+Mono:wght@300;400;500&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cacao:#2a1506;--cacao-mid:#5c2d0a;--cacao-light:#8b4513;--cacao-warm:#b8622a;--gold:#c9933a;
+  --cream:#f7ede0;--cream-dark:#e8d5be;--parchment:#f2e6d4;--ink:#1a0e06;
+  --text-primary:#2a1506;--text-secondary:#6b4020;--text-muted:#9e7455;
+  --surface:#fdf6ee;--surface-raised:#fff9f2;
+  --border:rgba(90,45,15,0.14);--border-strong:rgba(90,45,15,0.28);
+  --green:#2d6a35;--green-bg:#1a3320;--green-text:#6dbf7a;--green-light:rgba(45,106,53,.08);
+  --amber-bg:#3a2a06;--amber-text:#d4a830;--amber-light:rgba(212,168,48,.08);
+  --red-bg:#3a1010;--red-text:#d46060;--red-light:rgba(212,96,96,.07);
+  --blue-bg:#0e2038;--blue-text:#60a8d4;--blue-light:rgba(96,168,212,.07);
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+html{scroll-behavior:smooth;}
+body{font-family:'DM Sans',sans-serif;background:var(--parchment);color:var(--text-primary);min-height:100vh;}
+
+/* ── SHELL ── */
+.shell{display:flex;height:100vh;overflow:hidden;}
+
+/* ── SIDEBAR ── */
+.sidebar{width:220px;flex-shrink:0;background:var(--cacao);display:flex;flex-direction:column;position:relative;overflow:hidden;}
+.sidebar::after{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none'%3E%3Cg fill='%23ffffff' fill-opacity='0.015'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");pointer-events:none;}
+.sb-head{padding:22px 18px 16px;border-bottom:1px solid rgba(255,255,255,.08);position:relative;z-index:1;}
+.logo{width:36px;height:36px;background:var(--gold);border-radius:9px;display:flex;align-items:center;justify-content:center;margin-bottom:10px;font-family:'Playfair Display',serif;font-size:18px;color:var(--cacao);font-weight:600;}
+.sb-title{font-family:'Playfair Display',serif;font-size:13px;color:var(--cream);font-weight:500;line-height:1.3;}
+.sb-sub{font-size:9px;color:rgba(255,255,255,.3);margin-top:2px;font-family:'DM Mono',monospace;}
+.sb-date{font-size:9px;color:rgba(255,255,255,.25);font-family:'DM Mono',monospace;margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,.06);}
+.sb-nav{padding:10px 0;flex:1;overflow-y:auto;position:relative;z-index:1;}
+.sb-nav::-webkit-scrollbar{width:3px;}
+.sb-nav-sec{font-size:9px;color:rgba(255,255,255,.2);text-transform:uppercase;letter-spacing:1.5px;font-family:'DM Mono',monospace;padding:10px 18px 5px;}
+.sb-nav-item{display:flex;align-items:center;gap:8px;padding:8px 18px;cursor:pointer;transition:all .15s;position:relative;}
+.sb-nav-item:hover{background:rgba(255,255,255,.05);}
+.sb-nav-item.active{background:rgba(201,147,58,.14);}
+.sb-nav-item.active::before{content:'';position:absolute;left:0;top:4px;bottom:4px;width:2px;background:var(--gold);border-radius:0 2px 2px 0;}
+.sb-nav-icon{font-size:13px;width:18px;text-align:center;flex-shrink:0;}
+.sb-nav-label{font-size:11px;color:rgba(255,255,255,.5);font-family:'DM Sans',sans-serif;}
+.sb-nav-item.active .sb-nav-label{color:rgba(255,255,255,.9);}
+.sb-alerts{padding:12px 18px;border-top:1px solid rgba(255,255,255,.08);position:relative;z-index:1;}
+.sb-alert-label{font-size:9px;color:rgba(255,255,255,.25);text-transform:uppercase;letter-spacing:1.5px;font-family:'DM Mono',monospace;margin-bottom:7px;}
+.alert-item{display:flex;align-items:flex-start;gap:7px;padding:5px 0;border-bottom:1px solid rgba(255,255,255,.05);}
+.alert-item:last-child{border-bottom:none;}
+.alert-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:4px;}
+.alert-text{font-size:10px;color:rgba(255,255,255,.45);line-height:1.4;}
+.sb-footer{padding:12px 18px;border-top:1px solid rgba(255,255,255,.08);position:relative;z-index:1;}
+.sb-back{font-size:10px;color:rgba(255,255,255,.3);font-family:'DM Mono',monospace;cursor:pointer;transition:color .2s;text-decoration:none;display:block;}
+.sb-back:hover{color:rgba(255,255,255,.7);}
+
+/* ── MAIN ── */
+.main{flex:1;overflow-y:auto;display:flex;flex-direction:column;}
+.main::-webkit-scrollbar{width:5px;}
+.main::-webkit-scrollbar-thumb{background:var(--border-strong);border-radius:3px;}
+
+/* TOP BAR */
+.topbar{background:var(--surface-raised);border-bottom:1px solid var(--border);padding:13px 26px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;position:sticky;top:0;z-index:10;}
+.tb-left{display:flex;align-items:center;gap:10px;}
+.tb-title{font-family:'Playfair Display',serif;font-size:17px;font-weight:500;color:var(--ink);}
+.tb-badge{padding:3px 10px;border-radius:12px;font-size:10px;font-family:'DM Mono',monospace;}
+.tb-right{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--text-muted);font-family:'DM Mono',monospace;}
+.health-pill{padding:4px 12px;border-radius:12px;font-size:10px;font-family:'DM Mono',monospace;font-weight:500;}
+
+/* CONTENT */
+.content{padding:24px 26px;max-width:1400px;}
+.view{display:none;}
+.view.visible{display:block;}
+
+/* SHARED */
+.section-label{font-size:9px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:2px;color:var(--gold);margin-bottom:10px;}
+.section-title{font-family:'Playfair Display',serif;font-size:18px;font-weight:500;color:var(--ink);margin-bottom:4px;}
+.section-sub{font-size:12px;color:var(--text-muted);margin-bottom:18px;}
+.grid-4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:11px;margin-bottom:20px;}
+.grid-3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;margin-bottom:20px;}
+.grid-2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-bottom:20px;}
+.grid-2-1{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:20px;}
+.grid-1-2{display:grid;grid-template-columns:1fr 2fr;gap:14px;margin-bottom:20px;}
+.card{background:var(--surface-raised);border:1px solid var(--border);border-radius:13px;overflow:hidden;}
+.card.warn{border-color:rgba(212,168,48,.35);}
+.card.alert{border-color:rgba(212,96,96,.3);}
+.card.good{border-color:rgba(45,106,53,.25);}
+.card-head{padding:13px 17px 11px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.card-title{font-family:'Playfair Display',serif;font-size:14px;font-weight:500;color:var(--ink);}
+.card-meta{font-size:10px;color:var(--text-muted);font-family:'DM Mono',monospace;}
+.card-body{padding:15px 17px;}
+
+/* KPI CARDS */
+.kpi{background:var(--surface-raised);border:1px solid var(--border);border-radius:13px;padding:16px 18px;position:relative;overflow:hidden;}
+.kpi.warn{border-color:rgba(212,168,48,.4);background:rgba(58,42,6,.02);}
+.kpi.alert{border-color:rgba(212,96,96,.35);background:rgba(58,16,16,.02);}
+.kpi.good{border-color:rgba(45,106,53,.3);background:rgba(26,51,32,.02);}
+.kpi.gold{border-color:rgba(201,147,58,.4);background:rgba(42,21,6,.02);}
+.kpi-label{font-size:10px;color:var(--text-muted);text-transform:uppercase;letter-spacing:.8px;font-family:'DM Mono',monospace;margin-bottom:5px;}
+.kpi-val{font-size:26px;font-weight:500;color:var(--ink);font-family:'Playfair Display',serif;line-height:1;margin-bottom:4px;}
+.kpi-unit{font-size:12px;color:var(--text-muted);font-weight:400;margin-left:2px;}
+.kpi-sub{font-size:11px;color:var(--text-muted);line-height:1.4;}
+.kpi-sub.up{color:#4a9a5a;}
+.kpi-sub.down{color:#b04040;}
+.kpi-sub.warn{color:#c4a030;}
+.kpi-trend{position:absolute;bottom:14px;right:16px;font-size:18px;opacity:.15;}
+.kpi-sparkline{margin-top:8px;}
+.spark-bar-row{display:flex;align-items:flex-end;gap:2px;height:28px;}
+.spark-bar{flex:1;border-radius:2px 2px 0 0;background:var(--cacao-light);opacity:.5;transition:opacity .2s;}
+.spark-bar.current{opacity:1;background:var(--gold);}
+
+/* PROGRESS BARS */
+.prog-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.prog-row:last-child{margin-bottom:0;}
+.prog-label{font-size:12px;color:var(--text-primary);min-width:120px;}
+.prog-label.small{font-size:11px;color:var(--text-secondary);min-width:110px;}
+.prog-track{flex:1;height:6px;background:var(--cream-dark);border-radius:3px;overflow:hidden;}
+.prog-fill{height:100%;border-radius:3px;transition:width .6s;}
+.prog-fill.green{background:#4a9a5a;}
+.prog-fill.gold{background:var(--gold);}
+.prog-fill.amber{background:#c4863a;}
+.prog-fill.red{background:#b04040;}
+.prog-val{font-size:11px;font-family:'DM Mono',monospace;color:var(--text-muted);min-width:44px;text-align:right;}
+.prog-val.good{color:#4a9a5a;}
+.prog-val.warn{color:#c4863a;}
+.prog-val.bad{color:#b04040;}
+
+/* TABLE */
+.tbl-head{display:flex;padding:7px 16px;border-bottom:1px solid var(--border);background:rgba(242,230,212,.5);}
+.tbl-row{display:flex;padding:10px 16px;border-bottom:1px solid var(--border);align-items:center;transition:background .15s;cursor:pointer;}
+.tbl-row:last-child{border-bottom:none;}
+.tbl-row:hover{background:rgba(139,69,19,.025);}
+.tbl-cell{font-size:12px;color:var(--text-primary);}
+.tbl-hd{font-size:9px;color:var(--text-muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px;}
+.tbl-cell.mono{font-family:'DM Mono',monospace;}
+.tbl-cell.right{text-align:right;}
+.tbl-cell.muted{color:var(--text-muted);}
+.tbl-cell.green{color:#4a9a5a;font-family:'DM Mono',monospace;}
+.tbl-cell.amber{color:#c4863a;font-family:'DM Mono',monospace;}
+.tbl-cell.red{color:#b04040;font-family:'DM Mono',monospace;}
+.tbl-cell.bold{font-weight:500;}
+
+/* PILLS / TAGS */
+.pill{padding:2px 8px;border-radius:6px;font-size:9px;font-family:'DM Mono',monospace;display:inline-block;font-weight:500;}
+.pill-green{background:var(--green-bg);color:var(--green-text);}
+.pill-amber{background:var(--amber-bg);color:var(--amber-text);}
+.pill-red{background:var(--red-bg);color:var(--red-text);}
+.pill-blue{background:var(--blue-bg);color:var(--blue-text);}
+.pill-gold{background:rgba(201,147,58,.15);color:var(--gold);}
+
+/* DIVIDER */
+.divider{height:1px;background:var(--border);margin:18px 0;}
+
+/* GAUGE */
+.gauge-wrap{display:flex;flex-direction:column;align-items:center;padding:10px 0;}
+.gauge-svg{width:140px;height:80px;}
+.gauge-val{font-family:'Playfair Display',serif;font-size:24px;font-weight:500;color:var(--ink);margin-top:4px;}
+.gauge-label{font-size:10px;color:var(--text-muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.8px;}
+
+/* FORECAST CHART */
+.forecast-chart{padding:14px 17px;}
+.fc-months{display:flex;gap:6px;}
+.fc-month{flex:1;display:flex;flex-direction:column;align-items:center;gap:4px;}
+.fc-bars{display:flex;gap:2px;align-items:flex-end;height:80px;width:100%;}
+.fc-bar{flex:1;border-radius:3px 3px 0 0;transition:all .3s;position:relative;}
+.fc-bar.actual{background:var(--cacao-light);}
+.fc-bar.forecast{background:rgba(201,147,58,.35);border:1px dashed rgba(201,147,58,.6);}
+.fc-bar.target{background:rgba(109,191,122,.2);border:1px dashed rgba(109,191,122,.5);}
+.fc-month-label{font-size:9px;color:var(--text-muted);font-family:'DM Mono',monospace;}
+.fc-legend{display:flex;gap:14px;padding:8px 0 0;justify-content:center;}
+.fc-leg-item{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--text-muted);font-family:'DM Mono',monospace;}
+.fc-leg-dot{width:10px;height:10px;border-radius:2px;}
+
+/* COST WATERFALL */
+.waterfall{padding:14px 17px;}
+.wf-row{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.wf-label{font-size:12px;color:var(--text-secondary);min-width:140px;}
+.wf-bar-wrap{flex:1;position:relative;height:22px;}
+.wf-bar{height:22px;border-radius:4px;display:flex;align-items:center;padding:0 8px;position:relative;}
+.wf-bar-label{font-size:10px;font-family:'DM Mono',monospace;color:white;font-weight:500;position:absolute;left:8px;}
+.wf-val{font-size:11px;font-family:'DM Mono',monospace;color:var(--text-muted);min-width:60px;text-align:right;}
+.wf-margin{height:2px;background:var(--border);margin:8px 0;}
+
+/* BATCH HEALTH GRID */
+.batch-health-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;}
+.bh-card{background:var(--surface-raised);border:1px solid var(--border);border-radius:11px;padding:14px;cursor:pointer;transition:all .2s;}
+.bh-card:hover{border-color:var(--border-strong);}
+.bh-card.bh-active{border-color:rgba(201,147,58,.4);}
+.bh-name{font-family:'Playfair Display',serif;font-size:14px;font-weight:500;color:var(--ink);margin-bottom:2px;}
+.bh-stage{font-size:10px;color:var(--text-muted);font-family:'DM Mono',monospace;margin-bottom:10px;}
+.bh-prog-track{height:5px;background:var(--cream-dark);border-radius:3px;overflow:hidden;margin-bottom:5px;}
+.bh-prog-fill{height:100%;border-radius:3px;background:var(--cacao-light);}
+.bh-prog-pct{font-size:10px;font-family:'DM Mono',monospace;color:var(--text-muted);}
+.bh-stats{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px;}
+.bh-stat{background:rgba(242,230,212,.5);border-radius:6px;padding:6px 8px;}
+.bh-stat-label{font-size:8px;color:var(--text-muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.6px;}
+.bh-stat-val{font-size:12px;font-weight:500;color:var(--text-primary);margin-top:1px;}
+
+/* CAPACITY GAUGE */
+.cap-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-bottom:8px;}
+.cap-item{background:rgba(242,230,212,.5);border-radius:8px;padding:11px 13px;}
+.cap-name{font-size:10px;color:var(--text-muted);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.6px;margin-bottom:4px;}
+.cap-val{font-size:14px;font-weight:500;color:var(--text-primary);}
+.cap-bar{height:4px;background:var(--cream-dark);border-radius:2px;overflow:hidden;margin-top:6px;}
+.cap-fill{height:100%;border-radius:2px;}
+
+/* SCENARIO TABLE */
+.scenario-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px;}
+.sc-card{background:var(--surface-raised);border:1px solid var(--border);border-radius:12px;padding:16px;}
+.sc-card.current{border-color:rgba(201,147,58,.4);background:rgba(42,21,6,.015);}
+.sc-label{font-size:9px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;color:var(--text-muted);margin-bottom:6px;}
+.sc-rev{font-family:'Playfair Display',serif;font-size:20px;font-weight:500;color:var(--ink);margin-bottom:10px;}
+.sc-row{display:flex;justify-content:space-between;align-items:center;padding:4px 0;border-bottom:1px solid var(--border);}
+.sc-row:last-child{border-bottom:none;}
+.sc-row-label{font-size:11px;color:var(--text-muted);}
+.sc-row-val{font-size:11px;font-family:'DM Mono',monospace;color:var(--text-primary);font-weight:500;}
+
+/* WEEKLY CADENCE */
+.cadence-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;}
+.cad-card{background:var(--surface-raised);border:1px solid var(--border);border-radius:11px;padding:14px;}
+.cad-freq{font-size:9px;font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:1px;color:var(--gold);margin-bottom:6px;}
+.cad-title{font-size:13px;font-weight:500;color:var(--text-primary);margin-bottom:8px;}
+.cad-items{display:flex;flex-direction:column;gap:4px;}
+.cad-item{display:flex;align-items:flex-start;gap:6px;font-size:11px;color:var(--text-muted);line-height:1.4;}
+.cad-dot{width:4px;height:4px;border-radius:50%;background:var(--gold);flex-shrink:0;margin-top:5px;}
+
+/* ACCOUNTABILITY */
+.acc-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}
+.acc-row{display:flex;align-items:flex-start;gap:11px;padding:11px 16px;border-bottom:1px solid var(--border);}
+.acc-row:last-child{border-bottom:none;}
+.acc-avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:600;flex-shrink:0;font-family:'Playfair Display',serif;}
+.acc-name{font-size:12px;font-weight:500;color:var(--text-primary);}
+.acc-role{font-size:10px;color:var(--text-muted);font-family:'DM Mono',monospace;margin-top:1px;}
+.acc-owns{font-size:11px;color:var(--text-secondary);margin-top:3px;line-height:1.4;}
+.acc-kpi{display:inline-block;padding:1px 6px;border-radius:4px;font-size:9px;font-family:'DM Mono',monospace;background:rgba(201,147,58,.12);color:var(--gold);margin-top:4px;}
+
+/* BUTTONS */
+.btn{padding:7px 16px;border-radius:8px;border:1.5px solid var(--border-strong);background:white;color:var(--text-primary);font-size:12px;font-family:'DM Sans',sans-serif;font-weight:500;cursor:pointer;transition:all .2s;}
+.btn:hover{background:var(--cream-dark);}
+.btn-sm{padding:4px 11px;font-size:10px;}
+.btn-primary{background:var(--cacao-light);color:white;border-color:var(--cacao-light);}
+.btn-primary:hover{background:var(--cacao-mid);}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- ═══ SIDEBAR ═══ -->
+<div class="sidebar">
+  <div class="sb-head">
+    <div class="logo">R</div>
+    <div class="sb-title">Ritual Chocolate<br>Executive Dashboard</div>
+    <div class="sb-sub">Anna &amp; Jimmy · Founders</div>
+    <div class="sb-date" id="liveDate"></div>
+  </div>
+
+  <div class="sb-nav">
+    <div class="sb-nav-sec">Overview</div>
+    <div class="sb-nav-item active" onclick="show('overview')">
+      <div class="sb-nav-icon">⊞</div>
+      <div class="sb-nav-label">Morning Briefing</div>
+    </div>
+    <div class="sb-nav-item" onclick="show('production')">
+      <div class="sb-nav-icon">⚙</div>
+      <div class="sb-nav-label">Production Health</div>
+    </div>
+
+    <div class="sb-nav-sec">Financials</div>
+    <div class="sb-nav-item" onclick="show('margin')">
+      <div class="sb-nav-icon">$</div>
+      <div class="sb-nav-label">Margin by SKU</div>
+    </div>
+    <div class="sb-nav-item" onclick="show('batchcost')">
+      <div class="sb-nav-icon">⬡</div>
+      <div class="sb-nav-label">Cost Per Batch</div>
+    </div>
+    <div class="sb-nav-item" onclick="show('scenarios')">
+      <div class="sb-nav-icon">↗</div>
+      <div class="sb-nav-label">Revenue Scenarios</div>
+    </div>
+
+    <div class="sb-nav-sec">Operations</div>
+    <div class="sb-nav-item" onclick="show('forecast')">
+      <div class="sb-nav-icon">📅</div>
+      <div class="sb-nav-label">Production Forecast</div>
+    </div>
+    <div class="sb-nav-item" onclick="show('kpi')">
+      <div class="sb-nav-icon">◎</div>
+      <div class="sb-nav-label">KPI Cadence</div>
+    </div>
+    <div class="sb-nav-item" onclick="show('accountability')">
+      <div class="sb-nav-icon">👤</div>
+      <div class="sb-nav-label">Accountability Map</div>
+    </div>
+  </div>
+
+  <div class="sb-alerts">
+    <div class="sb-alert-label">Live Alerts</div>
+    <div class="alert-item"><div class="alert-dot" style="background:#d46060"></div><div class="alert-text">Cocoa butter below minimum — reorder needed</div></div>
+    <div class="alert-item"><div class="alert-dot" style="background:#d4a830"></div><div class="alert-text">Zingerman's — 58 days no order</div></div>
+    <div class="alert-item"><div class="alert-dot" style="background:#d4a830"></div><div class="alert-text">Batch B enters QC hold tomorrow</div></div>
+    <div class="alert-item"><div class="alert-dot" style="background:#4a9a5a"></div><div class="alert-text">April on track — 64% of target</div></div>
+  </div>
+
+  <div class="sb-footer">
+    <a href="index.html" class="sb-back">← Back to OS Overview</a>
+  </div>
+</div>
+
+<!-- ═══ MAIN ═══ -->
+<div class="main">
+  <div class="topbar">
+    <div class="tb-left">
+      <div class="tb-title" id="topTitle">Morning Briefing</div>
+      <div class="tb-badge pill-gold" id="topSub">April 15, 2026</div>
+    </div>
+    <div class="tb-right">
+      <span>Revenue target: <strong style="color:var(--text-primary)">$60k / mo</strong></span>
+      <div class="health-pill" id="healthPill" style="background:rgba(74,154,90,.12);color:#4a9a5a">Operations Stable</div>
+    </div>
+  </div>
+
+  <div class="content">
+
+    <!-- ═══ OVERVIEW / MORNING BRIEFING ═══ -->
+    <div class="view visible" id="view-overview">
+      <div class="section-label">Daily Snapshot</div>
+      <div class="section-title">Good morning, Anna & Jimmy.</div>
+      <div class="section-sub" style="margin-bottom:20px">Here's where the business stands as of April 15, 2026. Four batches in production. Monthly revenue tracking at 64% of target with 16 days remaining.</div>
+
+      <!-- TOP KPIs -->
+      <div class="grid-4">
+        <div class="kpi gold">
+          <div class="kpi-label">April Revenue</div>
+          <div class="kpi-val">$38<span class="kpi-unit">k</span></div>
+          <div class="kpi-sub warn">64% of $60k target · 16 days left</div>
+          <div class="kpi-trend">$</div>
+          <div class="kpi-sparkline"><div class="spark-bar-row">
+            <div class="spark-bar" style="height:40%"></div><div class="spark-bar" style="height:55%"></div>
+            <div class="spark-bar" style="height:45%"></div><div class="spark-bar" style="height:70%"></div>
+            <div class="spark-bar" style="height:60%"></div><div class="spark-bar" style="height:75%"></div>
+            <div class="spark-bar current" style="height:64%"></div>
+          </div></div>
+        </div>
+        <div class="kpi good">
+          <div class="kpi-label">Gross Margin</div>
+          <div class="kpi-val">52<span class="kpi-unit">%</span></div>
+          <div class="kpi-sub up">↑ 3pts vs last month · target 55%</div>
+          <div class="kpi-trend">%</div>
+          <div class="kpi-sparkline"><div class="spark-bar-row">
+            <div class="spark-bar" style="height:80%"></div><div class="spark-bar" style="height:75%"></div>
+            <div class="spark-bar" style="height:78%"></div><div class="spark-bar" style="height:72%"></div>
+            <div class="spark-bar" style="height:82%"></div><div class="spark-bar" style="height:86%"></div>
+            <div class="spark-bar current" style="height:87%"></div>
+          </div></div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Monthly Output</div>
+          <div class="kpi-val">6,800<span class="kpi-unit">lbs</span></div>
+          <div class="kpi-sub warn">On pace for ~8,500 lbs · target 10k</div>
+          <div class="kpi-trend">⚙</div>
+          <div class="kpi-sparkline"><div class="spark-bar-row">
+            <div class="spark-bar" style="height:65%"></div><div class="spark-bar" style="height:72%"></div>
+            <div class="spark-bar" style="height:68%"></div><div class="spark-bar" style="height:80%"></div>
+            <div class="spark-bar" style="height:75%"></div><div class="spark-bar" style="height:78%"></div>
+            <div class="spark-bar current" style="height:70%"></div>
+          </div></div>
+        </div>
+        <div class="kpi">
+          <div class="kpi-label">Avg Yield Rate</div>
+          <div class="kpi-val">96.2<span class="kpi-unit">%</span></div>
+          <div class="kpi-sub up">↑ 0.8pts · target 97%</div>
+          <div class="kpi-trend">✓</div>
+          <div class="kpi-sparkline"><div class="spark-bar-row">
+            <div class="spark-bar" style="height:90%"></div><div class="spark-bar" style="height:88%"></div>
+            <div class="spark-bar" style="height:92%"></div><div class="spark-bar" style="height:86%"></div>
+            <div class="spark-bar" style="height:91%"></div><div class="spark-bar" style="height:94%"></div>
+            <div class="spark-bar current" style="height:96%"></div>
+          </div></div>
+        </div>
+      </div>
+
+      <!-- BATCH STATUS + ALERTS -->
+      <div class="grid-2-1">
+        <div>
+          <div class="section-label" style="margin-bottom:8px">Batch Status — All 4 Active</div>
+          <div class="batch-health-grid">
+            <div class="bh-card bh-active" onclick="show('production')">
+              <div class="bh-name">Batch A</div>
+              <div class="bh-stage">Tempering · Stage 6 of 12</div>
+              <div class="bh-prog-track"><div class="bh-prog-fill" style="width:42%"></div></div>
+              <div class="bh-prog-pct">42% complete</div>
+              <div class="bh-stats">
+                <div class="bh-stat"><div class="bh-stat-label">Yield</div><div class="bh-stat-val">97.1%</div></div>
+                <div class="bh-stat"><div class="bh-stat-label">Est. finish</div><div class="bh-stat-val">Apr 17</div></div>
+              </div>
+            </div>
+            <div class="bh-card" onclick="show('production')">
+              <div class="bh-name">Batch B</div>
+              <div class="bh-stage">Cracking · Stage 3 of 12</div>
+              <div class="bh-prog-track"><div class="bh-prog-fill" style="width:17%"></div></div>
+              <div class="bh-prog-pct">17% complete</div>
+              <div class="bh-stats">
+                <div class="bh-stat"><div class="bh-stat-label">Yield</div><div class="bh-stat-val">—</div></div>
+                <div class="bh-stat"><div class="bh-stat-label">Est. finish</div><div class="bh-stat-val">Apr 22</div></div>
+              </div>
+            </div>
+            <div class="bh-card" onclick="show('production')">
+              <div class="bh-name">Batch C</div>
+              <div class="bh-stage">Intake · Stage 1 of 12</div>
+              <div class="bh-prog-track"><div class="bh-prog-fill" style="width:8%"></div></div>
+              <div class="bh-prog-pct">8% complete</div>
+              <div class="bh-stats">
+                <div class="bh-stat"><div class="bh-stat-label">Yield</div><div class="bh-stat-val">—</div></div>
+                <div class="bh-stat"><div class="bh-stat-label">Est. finish</div><div class="bh-stat-val">Apr 27</div></div>
+              </div>
+            </div>
+            <div class="bh-card" onclick="show('production')">
+              <div class="bh-name">Batch D</div>
+              <div class="bh-stage">Not yet started</div>
+              <div class="bh-prog-track"><div class="bh-prog-fill" style="width:0%"></div></div>
+              <div class="bh-prog-pct">Scheduled Apr 18</div>
+              <div class="bh-stats">
+                <div class="bh-stat"><div class="bh-stat-label">Yield</div><div class="bh-stat-val">—</div></div>
+                <div class="bh-stat"><div class="bh-stat-label">Est. finish</div><div class="bh-stat-val">May 1</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="section-label" style="margin-bottom:0">Priority Actions</div>
+          <div class="card alert">
+            <div class="card-body" style="padding:13px 15px">
+              <div style="font-size:11px;font-family:'DM Mono',monospace;color:var(--red-text);margin-bottom:4px;text-transform:uppercase;letter-spacing:.8px">Critical</div>
+              <div style="font-size:13px;font-weight:500;color:var(--ink);margin-bottom:3px">Reorder cocoa butter</div>
+              <div style="font-size:11px;color:var(--text-muted)">1,850 lbs on hand — 150 lbs below minimum. Needed for Batch C &amp; D.</div>
+            </div>
+          </div>
+          <div class="card warn">
+            <div class="card-body" style="padding:13px 15px">
+              <div style="font-size:11px;font-family:'DM Mono',monospace;color:var(--amber-text);margin-bottom:4px;text-transform:uppercase;letter-spacing:.8px">Follow Up</div>
+              <div style="font-size:13px;font-weight:500;color:var(--ink);margin-bottom:3px">Zingermans — 58 days quiet</div>
+              <div style="font-size:11px;color:var(--text-muted)">No order or contact since Feb 14. $19.8k LTV account. Risk of churn.</div>
+            </div>
+          </div>
+          <div class="card warn">
+            <div class="card-body" style="padding:13px 15px">
+              <div style="font-size:11px;font-family:'DM Mono',monospace;color:var(--amber-text);margin-bottom:4px;text-transform:uppercase;letter-spacing:.8px">Attention</div>
+              <div style="font-size:13px;font-weight:500;color:var(--ink);margin-bottom:3px">Output pacing 15% below target</div>
+              <div style="font-size:11px;color:var(--text-muted)">April on pace for 8,500 lbs vs 10k target. Batch D start date is key.</div>
+            </div>
+          </div>
+          <div class="card good">
+            <div class="card-body" style="padding:13px 15px">
+              <div style="font-size:11px;font-family:'DM Mono',monospace;color:var(--green-text);margin-bottom:4px;text-transform:uppercase;letter-spacing:.8px">Good News</div>
+              <div style="font-size:13px;font-weight:500;color:var(--ink);margin-bottom:3px">Margin up 3pts month-over-month</div>
+              <div style="font-size:11px;color:var(--text-muted)">52% gross margin this month vs 49% in March. Driven by Fleur de Sel volume.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CHANNEL REVENUE + TOP SKUS -->
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-head"><div class="card-title">Revenue by Channel — April MTD</div><div class="card-meta">$38,420 total</div></div>
+          <div class="card-body">
+            <div class="prog-row"><div class="prog-label">Wholesale / Retail</div><div class="prog-track"><div class="prog-fill green" style="width:44%"></div></div><div class="prog-val good">$16,900</div></div>
+            <div class="prog-row"><div class="prog-label">Distributor</div><div class="prog-track"><div class="prog-fill green" style="width:39%"></div></div><div class="prog-val good">$14,800</div></div>
+            <div class="prog-row"><div class="prog-label">Online / Shopify</div><div class="prog-track"><div class="prog-fill gold" style="width:13%"></div></div><div class="prog-val">$4,820</div></div>
+            <div class="prog-row"><div class="prog-label">Café Direct</div><div class="prog-track"><div class="prog-fill gold" style="width:5%"></div></div><div class="prog-val">$1,900</div></div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-title">Top SKUs by Contribution</div><div class="card-meta">Gross margin contribution</div></div>
+          <div class="card-body">
+            <div class="prog-row"><div class="prog-label small">Fleur de Sel</div><div class="prog-track"><div class="prog-fill green" style="width:88%"></div></div><div class="prog-val good">$8,640</div></div>
+            <div class="prog-row"><div class="prog-label small">Mid Mountain 70%</div><div class="prog-track"><div class="prog-fill green" style="width:72%"></div></div><div class="prog-val good">$7,200</div></div>
+            <div class="prog-row"><div class="prog-label small">Madagascar 75%</div><div class="prog-track"><div class="prog-fill green" style="width:65%"></div></div><div class="prog-val good">$5,760</div></div>
+            <div class="prog-row"><div class="prog-label small">Bourbon Barrel Aged</div><div class="prog-track"><div class="prog-fill gold" style="width:38%"></div></div><div class="prog-val">$3,240</div></div>
+            <div class="prog-row"><div class="prog-label small">Mini Bar Program</div><div class="prog-track"><div class="prog-fill gold" style="width:30%"></div></div><div class="prog-val">$2,880</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ PRODUCTION HEALTH ═══ -->
+    <div class="view" id="view-production">
+      <div class="section-label">Production</div>
+      <div class="section-title">Production Health</div>
+      <div class="section-sub">Operational KPIs, throughput analysis, and bottleneck visibility</div>
+
+      <div class="grid-4">
+        <div class="kpi"><div class="kpi-label">Output This Month</div><div class="kpi-val">6,800<span class="kpi-unit">lbs</span></div><div class="kpi-sub warn">85% of 10k target · pace risk</div></div>
+        <div class="kpi good"><div class="kpi-label">Avg Yield Rate</div><div class="kpi-val">96.2<span class="kpi-unit">%</span></div><div class="kpi-sub up">↑ improving · target 97%</div></div>
+        <div class="kpi"><div class="kpi-label">Labor Hrs / Batch</div><div class="kpi-val">148<span class="kpi-unit">hrs</span></div><div class="kpi-sub warn">↑ 12 hrs vs prior avg · review</div></div>
+        <div class="kpi good"><div class="kpi-label">On-Time Fulfillment</div><div class="kpi-val">94<span class="kpi-unit">%</span></div><div class="kpi-sub up">↑ from 88% last month</div></div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-head"><div class="card-title">Throughput by Stage</div><div class="card-meta">Avg time per stage · bottleneck flag</div></div>
+          <div class="card-body">
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div class="prog-row"><div class="prog-label small">Roasting</div><div class="prog-track"><div class="prog-fill green" style="width:18%"></div></div><div class="prog-val good">30 min</div></div>
+              <div class="prog-row"><div class="prog-label small">Cracking / Winnow</div><div class="prog-track"><div class="prog-fill green" style="width:25%"></div></div><div class="prog-val good">3 hrs</div></div>
+              <div class="prog-row"><div class="prog-label small">Grinding</div><div class="prog-track"><div class="prog-fill gold" style="width:75%"></div></div><div class="prog-val warn">20 hrs</div></div>
+              <div class="prog-row"><div class="prog-label small">Conching</div><div class="prog-track"><div class="prog-fill gold" style="width:100%"></div></div><div class="prog-val warn">48 hrs</div></div>
+              <div class="prog-row"><div class="prog-label small">Tempering</div><div class="prog-track"><div class="prog-fill green" style="width:20%"></div></div><div class="prog-val good">3 hrs</div></div>
+              <div class="prog-row"><div class="prog-label small">Molding &amp; Setting</div><div class="prog-track"><div class="prog-fill green" style="width:22%"></div></div><div class="prog-val good">2.5 hrs</div></div>
+              <div class="prog-row"><div class="prog-label small">QC Hold</div><div class="prog-track"><div class="prog-fill amber" style="width:30%"></div></div><div class="prog-val warn">4 hrs</div></div>
+              <div class="prog-row"><div class="prog-label small">Packaging</div><div class="prog-track"><div class="prog-fill green" style="width:28%"></div></div><div class="prog-val good">5 hrs</div></div>
+            </div>
+            <div style="margin-top:12px;padding:10px;background:rgba(58,40,8,.05);border-radius:8px;border:1px solid rgba(212,168,48,.2);">
+              <div style="font-size:11px;color:var(--amber-text);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px">⚠ Bottleneck Identified</div>
+              <div style="font-size:12px;color:var(--text-secondary)">Conching (48 hrs avg) is the primary throughput constraint. Grinding follows. Both are equipment-limited, not labor-limited — a second conche would add ~40% monthly capacity.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-head"><div class="card-title">Capacity Utilization</div><div class="card-meta">Current equipment load</div></div>
+          <div class="card-body">
+            <div class="cap-grid">
+              <div class="cap-item">
+                <div class="cap-name">Roaster</div>
+                <div class="cap-val">68%</div>
+                <div class="cap-bar"><div class="cap-fill" style="width:68%;background:#4a9a5a"></div></div>
+              </div>
+              <div class="cap-item">
+                <div class="cap-name">Melangeur #1</div>
+                <div class="cap-val">100%</div>
+                <div class="cap-bar"><div class="cap-fill" style="width:100%;background:#b04040"></div></div>
+              </div>
+              <div class="cap-item">
+                <div class="cap-name">Melangeur #2</div>
+                <div class="cap-val">0%</div>
+                <div class="cap-bar"><div class="cap-fill" style="width:5%;background:#9e7455"></div></div>
+              </div>
+              <div class="cap-item">
+                <div class="cap-name">Conche</div>
+                <div class="cap-val">100%</div>
+                <div class="cap-bar"><div class="cap-fill" style="width:100%;background:#b04040"></div></div>
+              </div>
+              <div class="cap-item">
+                <div class="cap-name">Temper Machine</div>
+                <div class="cap-val">72%</div>
+                <div class="cap-bar"><div class="cap-fill" style="width:72%;background:#4a9a5a"></div></div>
+              </div>
+              <div class="cap-item">
+                <div class="cap-name">Cooling Tunnel</div>
+                <div class="cap-val">58%</div>
+                <div class="cap-bar"><div class="cap-fill" style="width:58%;background:#c4863a"></div></div>
+              </div>
+            </div>
+            <div style="margin-top:12px;padding:10px;background:rgba(58,16,16,.04);border-radius:8px;border:1px solid rgba(212,96,96,.2);">
+              <div style="font-size:11px;color:var(--red-text);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px;margin-bottom:4px">Constraint</div>
+              <div style="font-size:12px;color:var(--text-secondary)">Melangeur #1 and Conche are running at 100% utilization. Melangeur #2 is offline (service overdue). Restoring MLG-02 would allow parallel grinding and remove the primary capacity ceiling.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div class="card-title">Labor Efficiency</div><div class="card-meta">Hours and cost per production stage — April</div></div>
+        <div class="tbl-head" style="grid-template-columns:2fr 1fr 1fr 1fr 1fr 1fr">
+          <div class="tbl-hd" style="flex:2">Stage</div>
+          <div class="tbl-hd" style="flex:1;text-align:right">Hrs budgeted</div>
+          <div class="tbl-hd" style="flex:1;text-align:right">Hrs actual</div>
+          <div class="tbl-hd" style="flex:1;text-align:right">Variance</div>
+          <div class="tbl-hd" style="flex:1;text-align:right">Labor $</div>
+          <div class="tbl-hd" style="flex:1;text-align:right">$ / lb</div>
+        </div>
+        <div id="laborTable"></div>
+      </div>
+    </div>
+
+    <!-- ═══ MARGIN BY SKU ═══ -->
+    <div class="view" id="view-margin">
+      <div class="section-label">Financials</div>
+      <div class="section-title">Gross Margin by SKU</div>
+      <div class="section-sub">Fully-loaded contribution margin per product — material cost, labor allocation, and packaging</div>
+
+      <div class="grid-4">
+        <div class="kpi gold"><div class="kpi-label">Portfolio Avg Margin</div><div class="kpi-val">52<span class="kpi-unit">%</span></div><div class="kpi-sub warn">Target 55% · improving</div></div>
+        <div class="kpi good"><div class="kpi-label">Highest Margin SKU</div><div class="kpi-val" style="font-size:18px">Fleur de Sel</div><div class="kpi-sub up">64% margin</div></div>
+        <div class="kpi warn"><div class="kpi-label">Lowest Margin SKU</div><div class="kpi-val" style="font-size:18px">Bundles</div><div class="kpi-sub warn">38% avg margin</div></div>
+        <div class="kpi"><div class="kpi-label">SKUs Above Target</div><div class="kpi-val">9<span class="kpi-unit"> / 24</span></div><div class="kpi-sub warn">15 SKUs below 55% target</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-head"><div class="card-title">SKU Margin Analysis — Full Product Line</div><div class="card-meta">Sorted by gross margin %</div></div>
+        <div class="tbl-head">
+          <div class="tbl-hd" style="flex:2.5">Product</div>
+          <div class="tbl-hd" style="flex:1;text-align:right">Retail price</div>
+          <div class="tbl-hd" style="flex:1;text-align:right">Material cost</div>
+          <div class="tbl-hd" style="flex:1;text-align:right">Labor alloc</div>
+          <div class="tbl-hd" style="flex:1;text-align:right">Pkg + overhead</div>
+          <div class="tbl-hd" style="flex:1;text-align:right">Total COGS</div>
+          <div class="tbl-hd" style="flex:1;text-align:right">Gross margin</div>
+          <div class="tbl-hd" style="flex:.8">vs target</div>
+        </div>
+        <div id="skuMarginTable"></div>
+      </div>
+
+      <div class="grid-2" style="margin-top:18px">
+        <div class="card">
+          <div class="card-head"><div class="card-title">Margin Improvement Opportunities</div></div>
+          <div class="card-body">
+            <div style="display:flex;flex-direction:column;gap:10px">
+              <div style="padding:10px;background:var(--green-light);border-radius:8px;border:1px solid rgba(45,106,53,.15)">
+                <div style="font-size:11px;font-weight:500;color:var(--green);margin-bottom:3px">Pricing — Mini Bar Program</div>
+                <div style="font-size:12px;color:var(--text-muted)">Mini bars priced at $3.99 generate 41% margin. A $0.50 price increase to $4.49 would add ~$1,200/mo at current volume with minimal demand impact.</div>
+              </div>
+              <div style="padding:10px;background:var(--green-light);border-radius:8px;border:1px solid rgba(45,106,53,.15)">
+                <div style="font-size:11px;font-weight:500;color:var(--green);margin-bottom:3px">Volume — Fleur de Sel</div>
+                <div style="font-size:12px;color:var(--text-muted)">64% margin, highest in portfolio. Every additional 100 units sold adds $640 in gross profit. Priority SKU for sales push.</div>
+              </div>
+              <div style="padding:10px;background:var(--amber-light);border-radius:8px;border:1px solid rgba(212,168,48,.15)">
+                <div style="font-size:11px;font-weight:500;color:#9a6e1a;margin-bottom:3px">Cost — Cocoa Butter Purchasing</div>
+                <div style="font-size:12px;color:var(--text-muted)">Cocoa butter represents ~18% of material cost. A bulk purchasing agreement at 2,000 lb minimum could reduce this by 8–12%.</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-title">Channel Margin Comparison</div><div class="card-meta">Net margin after channel costs</div></div>
+          <div class="card-body">
+            <div class="prog-row"><div class="prog-label">Café Direct</div><div class="prog-track"><div class="prog-fill green" style="width:68%"></div></div><div class="prog-val good">68%</div></div>
+            <div class="prog-row"><div class="prog-label">Shopify (Direct)</div><div class="prog-track"><div class="prog-fill green" style="width:58%"></div></div><div class="prog-val good">58%</div></div>
+            <div class="prog-row"><div class="prog-label">Wholesale</div><div class="prog-track"><div class="prog-fill gold" style="width:48%"></div></div><div class="prog-val warn">48%</div></div>
+            <div class="prog-row"><div class="prog-label">Distributor</div><div class="prog-track"><div class="prog-fill amber" style="width:38%"></div></div><div class="prog-val warn">38%</div></div>
+            <div class="prog-row"><div class="prog-label">Affiliate</div><div class="prog-track"><div class="prog-fill amber" style="width:42%"></div></div><div class="prog-val warn">42%</div></div>
+            <div style="margin-top:12px;font-size:11px;color:var(--text-muted);line-height:1.6;padding:9px;background:rgba(242,230,212,.5);border-radius:7px">
+              Café and Shopify deliver the highest margins. Each shift of 10% revenue from distributor to direct channels adds ~$6,000/year in gross profit at current scale.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ COST PER BATCH ═══ -->
+    <div class="view" id="view-batchcost">
+      <div class="section-label">Financials</div>
+      <div class="section-title">Cost Per Batch</div>
+      <div class="section-sub">Fully-burdened cost breakdown for a 2,500 lb production batch</div>
+
+      <div class="grid-4">
+        <div class="kpi gold"><div class="kpi-label">Total Cost / Batch</div><div class="kpi-val">$9,840</div><div class="kpi-sub">2,500 lb batch · fully burdened</div></div>
+        <div class="kpi"><div class="kpi-label">Cost Per Pound</div><div class="kpi-val">$3.94<span class="kpi-unit">/lb</span></div><div class="kpi-sub warn">Target $3.75 · $0.19 above</div></div>
+        <div class="kpi good"><div class="kpi-label">Revenue Per Batch</div><div class="kpi-val">$20,500</div><div class="kpi-sub up">At avg realized price of $8.20/lb</div></div>
+        <div class="kpi good"><div class="kpi-label">Batch Gross Profit</div><div class="kpi-val">$10,660</div><div class="kpi-sub up">52% margin per batch</div></div>
+      </div>
+
+      <div class="grid-2-1">
+        <div class="card">
+          <div class="card-head"><div class="card-title">Cost Waterfall — Per 2,500 lb Batch</div><div class="card-meta">Fully burdened breakdown</div></div>
+          <div class="waterfall">
+            <div class="wf-row">
+              <div class="wf-label">Cacao beans</div>
+              <div class="wf-bar-wrap"><div class="wf-bar" style="width:42%;background:#8b4513"><div class="wf-bar-label">$4,125</div></div></div>
+              <div class="wf-val">42%</div>
+            </div>
+            <div class="wf-row">
+              <div class="wf-label">Labor (148 hrs)</div>
+              <div class="wf-bar-wrap"><div class="wf-bar" style="width:24%;background:#6b4020"><div class="wf-bar-label">$2,368</div></div></div>
+              <div class="wf-val">24%</div>
+            </div>
+            <div class="wf-row">
+              <div class="wf-label">Cocoa butter</div>
+              <div class="wf-bar-wrap"><div class="wf-bar" style="width:14%;background:#9e7455"><div class="wf-bar-label">$1,380</div></div></div>
+              <div class="wf-val">14%</div>
+            </div>
+            <div class="wf-row">
+              <div class="wf-label">Packaging materials</div>
+              <div class="wf-bar-wrap"><div class="wf-bar" style="width:9%;background:#b8622a"><div class="wf-bar-label">$885</div></div></div>
+              <div class="wf-val">9%</div>
+            </div>
+            <div class="wf-row">
+              <div class="wf-label">Other ingredients</div>
+              <div class="wf-bar-wrap"><div class="wf-bar" style="width:5%;background:#c4843a"><div class="wf-bar-label">$492</div></div></div>
+              <div class="wf-val">5%</div>
+            </div>
+            <div class="wf-row">
+              <div class="wf-label">Overhead allocation</div>
+              <div class="wf-bar-wrap"><div class="wf-bar" style="width:6%;background:#d4915a"><div class="wf-bar-label">$590</div></div></div>
+              <div class="wf-val">6%</div>
+            </div>
+            <div class="wf-margin"></div>
+            <div class="wf-row">
+              <div class="wf-label" style="font-weight:500;color:var(--ink)">Total COGS</div>
+              <div class="wf-bar-wrap"><div class="wf-bar" style="width:100%;background:#2a1506"><div class="wf-bar-label">$9,840 total</div></div></div>
+              <div class="wf-val" style="color:var(--ink);font-weight:500">100%</div>
+            </div>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:12px;">
+          <div class="card">
+            <div class="card-head"><div class="card-title">Cost Reduction Targets</div></div>
+            <div class="card-body">
+              <div style="display:flex;flex-direction:column;gap:8px">
+                <div><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:12px;color:var(--text-primary)">Labor efficiency</span><span style="font-size:11px;font-family:'DM Mono',monospace;color:#c4863a">–$0.08/lb potential</span></div><div style="font-size:11px;color:var(--text-muted)">148 hrs vs 136 hr target. Cross-training packaging &amp; QC roles could save 12 hrs/batch.</div></div>
+                <div class="divider" style="margin:6px 0"></div>
+                <div><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:12px;color:var(--text-primary)">Cocoa butter bulk buy</span><span style="font-size:11px;font-family:'DM Mono',monospace;color:#4a9a5a">–$0.06/lb potential</span></div><div style="font-size:11px;color:var(--text-muted)">Negotiating a 5,000 lb minimum order at 8% discount saves ~$600/batch.</div></div>
+                <div class="divider" style="margin:6px 0"></div>
+                <div><div style="display:flex;justify-content:space-between;margin-bottom:3px"><span style="font-size:12px;color:var(--text-primary)">Waste reduction</span><span style="font-size:11px;font-family:'DM Mono',monospace;color:#4a9a5a">–$0.05/lb potential</span></div><div style="font-size:11px;color:var(--text-muted)">3.8% scrap rate vs 3% target. Tighter conching controls and mold fill discipline.</div></div>
+              </div>
+            </div>
+          </div>
+          <div class="card good">
+            <div class="card-body" style="padding:13px 15px">
+              <div style="font-size:11px;color:var(--green-text);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:.7px;margin-bottom:5px">Outsource Comparison</div>
+              <div style="font-size:12px;color:var(--text-secondary);line-height:1.6">A co-manufacturer at comparable quality could produce at approximately <strong>$3.10–$3.40/lb</strong> landed — vs current $3.94/lb in-house. At 10,000 lbs/month that's a potential $5,400–$8,400/month COGS reduction. Requires quality audit, MOQ analysis, and transition planning.</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ REVENUE SCENARIOS ═══ -->
+    <div class="view" id="view-scenarios">
+      <div class="section-label">Financials</div>
+      <div class="section-title">Revenue Scenarios & Scale Modeling</div>
+      <div class="section-sub">Financial stress-test at $3M, $5M, and $7M — aligned with proposal Phase 2 objectives</div>
+
+      <div class="grid-4" style="margin-bottom:24px">
+        <div class="kpi"><div class="kpi-label">Current Run Rate</div><div class="kpi-val">$2.1<span class="kpi-unit">M</span></div><div class="kpi-sub">annualized April pace</div></div>
+        <div class="kpi warn"><div class="kpi-label">Prior Peak Revenue</div><div class="kpi-val">$2.5<span class="kpi-unit">M</span></div><div class="kpi-sub warn">Previous high watermark</div></div>
+        <div class="kpi"><div class="kpi-label">Phase 2 Target</div><div class="kpi-val">$5<span class="kpi-unit">M</span></div><div class="kpi-sub">proposal objective</div></div>
+        <div class="kpi gold"><div class="kpi-label">Required Monthly Output</div><div class="kpi-val">34k<span class="kpi-unit">lbs</span></div><div class="kpi-sub warn">For $5M — 3.4× current capacity</div></div>
+      </div>
+
+      <div class="scenario-grid">
+        <div class="sc-card current">
+          <div class="sc-label">Current · April 2026</div>
+          <div class="sc-rev">$2.1M / year</div>
+          <div class="sc-row"><div class="sc-row-label">Monthly output</div><div class="sc-row-val">~8,500 lbs</div></div>
+          <div class="sc-row"><div class="sc-row-label">Batches / month</div><div class="sc-row-val">4 batches</div></div>
+          <div class="sc-row"><div class="sc-row-label">Gross margin</div><div class="sc-row-val">52%</div></div>
+          <div class="sc-row"><div class="sc-row-label">Gross profit</div><div class="sc-row-val">~$1.1M</div></div>
+          <div class="sc-row"><div class="sc-row-label">Headcount</div><div class="sc-row-val">6–8 FTE</div></div>
+          <div class="sc-row"><div class="sc-row-label">Primary constraint</div><div class="sc-row-val">Conche capacity</div></div>
+          <div style="margin-top:10px;padding:8px;background:rgba(201,147,58,.1);border-radius:7px;font-size:11px;color:var(--text-muted)">Current state. Stable but below prior peak. Capacity constrained by single conche.</div>
+        </div>
+        <div class="sc-card">
+          <div class="sc-label">Scenario · $3M Target</div>
+          <div class="sc-rev">$3M / year</div>
+          <div class="sc-row"><div class="sc-row-label">Monthly output</div><div class="sc-row-val">~14,500 lbs</div></div>
+          <div class="sc-row"><div class="sc-row-label">Batches / month</div><div class="sc-row-val">6–7 batches</div></div>
+          <div class="sc-row"><div class="sc-row-label">Gross margin</div><div class="sc-row-val">53–54%</div></div>
+          <div class="sc-row"><div class="sc-row-label">Gross profit</div><div class="sc-row-val">~$1.6M</div></div>
+          <div class="sc-row"><div class="sc-row-label">Headcount</div><div class="sc-row-val">10–12 FTE</div></div>
+          <div class="sc-row"><div class="sc-row-label">Capex required</div><div class="sc-row-val">~$80k</div></div>
+          <div style="margin-top:10px;padding:8px;background:rgba(45,106,53,.06);border-radius:7px;font-size:11px;color:var(--text-muted)">Achievable in-house with 2nd conche, restored Melangeur #2, and 3–4 additional production staff. Realistic 12–18 month target.</div>
+        </div>
+        <div class="sc-card">
+          <div class="sc-label">Scenario · $5M Target</div>
+          <div class="sc-rev">$5M / year</div>
+          <div class="sc-row"><div class="sc-row-label">Monthly output</div><div class="sc-row-val">~34,000 lbs</div></div>
+          <div class="sc-row"><div class="sc-row-label">Batches / month</div><div class="sc-row-val">13–14 batches</div></div>
+          <div class="sc-row"><div class="sc-row-label">Gross margin</div><div class="sc-row-val">54–58%</div></div>
+          <div class="sc-row"><div class="sc-row-label">Gross profit</div><div class="sc-row-val">~$2.7–2.9M</div></div>
+          <div class="sc-row"><div class="sc-row-label">Headcount</div><div class="sc-row-val">18–22 FTE</div></div>
+          <div class="sc-row"><div class="sc-row-label">Production model</div><div class="sc-row-val">Hybrid / co-man</div></div>
+          <div style="margin-top:10px;padding:8px;background:rgba(96,168,212,.06);border-radius:7px;font-size:11px;color:var(--text-muted)">Requires either significant facility expansion or co-manufacturing partnership. Co-man at $3.20/lb landed could deliver this at better margin than pure in-house scale.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ PRODUCTION FORECAST ═══ -->
+    <div class="view" id="view-forecast">
+      <div class="section-label">Operations</div>
+      <div class="section-title">Production Forecast — 6 Week Rolling</div>
+      <div class="section-sub">Planned output vs. capacity vs. sales demand · updated weekly</div>
+
+      <div class="grid-4">
+        <div class="kpi"><div class="kpi-label">Batches Scheduled</div><div class="kpi-val">8<span class="kpi-unit"> / 6 wks</span></div><div class="kpi-sub warn">2 batches pending capacity</div></div>
+        <div class="kpi gold"><div class="kpi-label">Projected Output</div><div class="kpi-val">18,500<span class="kpi-unit">lbs</span></div><div class="kpi-sub">Next 6 weeks</div></div>
+        <div class="kpi warn"><div class="kpi-label">Demand vs Supply Gap</div><div class="kpi-val">+2,200<span class="kpi-unit">lbs</span></div><div class="kpi-sub warn">Demand exceeds projected output</div></div>
+        <div class="kpi"><div class="kpi-label">Raw Material Cover</div><div class="kpi-val">3.2<span class="kpi-unit">×</span></div><div class="kpi-sub warn">Except cocoa butter — reorder now</div></div>
+      </div>
+
+      <div class="card" style="margin-bottom:16px">
+        <div class="card-head"><div class="card-title">6-Week Production & Demand Forecast</div><div class="card-meta">Actual · Planned · Demand</div></div>
+        <div class="forecast-chart">
+          <div class="fc-months" id="forecastChart"></div>
+          <div class="fc-legend">
+            <div class="fc-leg-item"><div class="fc-leg-dot" style="background:var(--cacao-light)"></div>Actual output</div>
+            <div class="fc-leg-item"><div class="fc-leg-dot" style="background:rgba(201,147,58,.4);border:1px dashed rgba(201,147,58,.7)"></div>Planned output</div>
+            <div class="fc-leg-item"><div class="fc-leg-dot" style="background:rgba(109,191,122,.3);border:1px dashed rgba(109,191,122,.6)"></div>Sales demand</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-head"><div class="card-title">6-Week Batch Schedule</div></div>
+          <div id="batchSchedule"></div>
+        </div>
+        <div class="card">
+          <div class="card-head"><div class="card-title">Raw Material Requirement — 6 Weeks</div></div>
+          <div id="rawMaterials"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══ KPI CADENCE ═══ -->
+    <div class="view" id="view-kpi">
+      <div class="section-label">Operations</div>
+      <div class="section-title">KPI Cadence & Operating Rhythms</div>
+      <div class="section-sub">Weekly, monthly, and quarterly review structure — eliminating reactive management</div>
+
+      <div class="cadence-grid" style="margin-bottom:22px">
+        <div class="cad-card">
+          <div class="cad-freq">Daily</div>
+          <div class="cad-title">Production Standup</div>
+          <div class="cad-items">
+            <div class="cad-item"><div class="cad-dot"></div>Batch stage check-in (all 4)</div>
+            <div class="cad-item"><div class="cad-dot"></div>Equipment status flags</div>
+            <div class="cad-item"><div class="cad-dot"></div>Today's output vs. plan</div>
+            <div class="cad-item"><div class="cad-dot"></div>Inventory alerts review</div>
+            <div class="cad-item"><div class="cad-dot"></div>Owner: Production OS dashboard</div>
+          </div>
+        </div>
+        <div class="cad-card" style="border-color:rgba(201,147,58,.3)">
+          <div class="cad-freq">Weekly</div>
+          <div class="cad-title">Leadership KPI Review</div>
+          <div class="cad-items">
+            <div class="cad-item"><div class="cad-dot"></div>Revenue vs. weekly target</div>
+            <div class="cad-item"><div class="cad-dot"></div>Gross margin by channel</div>
+            <div class="cad-item"><div class="cad-dot"></div>Batch yield rates</div>
+            <div class="cad-item"><div class="cad-dot"></div>Sales pipeline / follow-up queue</div>
+            <div class="cad-item"><div class="cad-dot"></div>Inventory low-stock flags</div>
+            <div class="cad-item"><div class="cad-dot"></div>Owner: Executive Dashboard (this screen)</div>
+          </div>
+        </div>
+        <div class="cad-card">
+          <div class="cad-freq">Monthly</div>
+          <div class="cad-title">Operational Review</div>
+          <div class="cad-items">
+            <div class="cad-item"><div class="cad-dot"></div>P&amp;L review — margin by SKU</div>
+            <div class="cad-item"><div class="cad-dot"></div>Cost per batch trend</div>
+            <div class="cad-item"><div class="cad-dot"></div>Throughput &amp; bottleneck analysis</div>
+            <div class="cad-item"><div class="cad-dot"></div>Sales account health review</div>
+            <div class="cad-item"><div class="cad-dot"></div>Equipment maintenance status</div>
+            <div class="cad-item"><div class="cad-dot"></div>Forecast vs. actual reconciliation</div>
+          </div>
+        </div>
+        <div class="cad-card">
+          <div class="cad-freq">Quarterly</div>
+          <div class="cad-title">Strategic Session</div>
+          <div class="cad-items">
+            <div class="cad-item"><div class="cad-dot"></div>Revenue scenario review</div>
+            <div class="cad-item"><div class="cad-dot"></div>Production model evaluation</div>
+            <div class="cad-item"><div class="cad-dot"></div>EU / expansion readiness check</div>
+            <div class="cad-item"><div class="cad-dot"></div>Valuation &amp; investor readiness</div>
+            <div class="cad-item"><div class="cad-dot"></div>Founder focus &amp; priorities reset</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title" style="margin-bottom:6px">Live KPI Scorecard — April 2026</div>
+      <div class="section-sub">Weekly leadership review — KPIs mapped to proposal objectives</div>
+      <div class="card">
+        <div class="tbl-head">
+          <div class="tbl-hd" style="flex:2">KPI</div>
+          <div class="tbl-hd" style="flex:1;text-align:right">Target</div>
+          <div class="tbl-hd" style="flex:1;text-align:right">Actual</div>
+          <div class="tbl-hd" style="flex:1;text-align:right">vs. Target</div>
+          <div class="tbl-hd" style="flex:.8">Status</div>
+          <div class="tbl-hd" style="flex:1.5">Proposal Phase</div>
+        </div>
+        <div id="kpiScorecard"></div>
+      </div>
+    </div>
+
+    <!-- ═══ ACCOUNTABILITY MAP ═══ -->
+    <div class="view" id="view-accountability">
+      <div class="section-label">Operations</div>
+      <div class="section-title">Accountability & Ownership Map</div>
+      <div class="section-sub">Who owns what outcomes — removing founder dependency from day-to-day operations</div>
+
+      <div class="grid-2" style="margin-bottom:20px">
+        <div class="card">
+          <div class="card-head"><div class="card-title">Current State — Founder Load</div><div class="card-meta card-meta" style="color:var(--red-text)">High dependency</div></div>
+          <div class="card-body">
+            <div style="margin-bottom:10px;font-size:12px;color:var(--text-muted)">Estimated % of decisions currently requiring founder input:</div>
+            <div class="prog-row"><div class="prog-label">Production scheduling</div><div class="prog-track"><div class="prog-fill red" style="width:85%"></div></div><div class="prog-val bad">85%</div></div>
+            <div class="prog-row"><div class="prog-label">Fulfillment / shipping</div><div class="prog-track"><div class="prog-fill red" style="width:70%"></div></div><div class="prog-val bad">70%</div></div>
+            <div class="prog-row"><div class="prog-label">Sales decisions</div><div class="prog-track"><div class="prog-fill amber" style="width:60%"></div></div><div class="prog-val warn">60%</div></div>
+            <div class="prog-row"><div class="prog-label">Purchasing / reorders</div><div class="prog-track"><div class="prog-fill amber" style="width:55%"></div></div><div class="prog-val warn">55%</div></div>
+            <div class="prog-row"><div class="prog-label">QC sign-off</div><div class="prog-track"><div class="prog-fill amber" style="width:40%"></div></div><div class="prog-val warn">40%</div></div>
+            <div class="prog-row"><div class="prog-label">Brand &amp; innovation</div><div class="prog-track"><div class="prog-fill green" style="width:20%"></div></div><div class="prog-val good">20%</div></div>
+          </div>
+        </div>
+        <div class="card good">
+          <div class="card-head"><div class="card-title">Target State — Structured Ownership</div><div class="card-meta" style="color:var(--green-text)">Post-Phase 3</div></div>
+          <div class="card-body">
+            <div style="margin-bottom:10px;font-size:12px;color:var(--text-muted)">Target % of decisions requiring founder input after 6-month engagement:</div>
+            <div class="prog-row"><div class="prog-label">Production scheduling</div><div class="prog-track"><div class="prog-fill green" style="width:10%"></div></div><div class="prog-val good">10%</div></div>
+            <div class="prog-row"><div class="prog-label">Fulfillment / shipping</div><div class="prog-track"><div class="prog-fill green" style="width:10%"></div></div><div class="prog-val good">10%</div></div>
+            <div class="prog-row"><div class="prog-label">Sales decisions</div><div class="prog-track"><div class="prog-fill green" style="width:25%"></div></div><div class="prog-val good">25%</div></div>
+            <div class="prog-row"><div class="prog-label">Purchasing / reorders</div><div class="prog-track"><div class="prog-fill green" style="width:15%"></div></div><div class="prog-val good">15%</div></div>
+            <div class="prog-row"><div class="prog-label">QC sign-off</div><div class="prog-track"><div class="prog-fill green" style="width:10%"></div></div><div class="prog-val good">10%</div></div>
+            <div class="prog-row"><div class="prog-label">Brand &amp; innovation</div><div class="prog-track"><div class="prog-fill green" style="width:80%"></div></div><div class="prog-val good">80%</div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title" style="margin-bottom:6px">Role Accountability Chart</div>
+      <div class="section-sub">Clear ownership by function — each person owns outcomes, not tasks</div>
+      <div class="card">
+        <div id="accountabilityChart"></div>
+      </div>
+    </div>
+
+  </div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /shell -->
+
+<script>
+// ══════════════════════════════════
+// DATA
+// ══════════════════════════════════
+const SKU_DATA=[
+  {name:"Fleur de Sel",cat:"Inclusion",price:10.00,material:2.10,labor:1.20,pkg:0.30},
+  {name:"Mid Mountain Blend 70%",cat:"Single Origin",price:10.00,material:2.40,labor:1.20,pkg:0.28},
+  {name:"Madagascar 75%",cat:"Single Origin",price:12.00,material:3.20,labor:1.20,pkg:0.28},
+  {name:"Peru 75%",cat:"Single Origin",price:12.00,material:3.10,labor:1.20,pkg:0.28},
+  {name:"Ecuador 75%",cat:"Single Origin",price:12.00,material:3.30,labor:1.20,pkg:0.28},
+  {name:"Belize 75%",cat:"Single Origin",price:12.00,material:3.40,labor:1.20,pkg:0.28},
+  {name:"Cacao Nib Bar",cat:"Inclusion",price:11.00,material:2.80,labor:1.30,pkg:0.30},
+  {name:"Cherry Vanilla Bar",cat:"Inclusion",price:11.00,material:2.90,labor:1.30,pkg:0.32},
+  {name:"S'mores Bar",cat:"Inclusion",price:11.00,material:2.70,labor:1.30,pkg:0.35},
+  {name:"Honeycomb Toffee",cat:"Inclusion",price:11.00,material:2.65,labor:1.30,pkg:0.35},
+  {name:"Oat Milk Mocha 50%",cat:"Inclusion",price:12.00,material:3.10,labor:1.20,pkg:0.30},
+  {name:"One Hundred Percent",cat:"Single Origin",price:11.00,material:3.80,labor:1.20,pkg:0.28},
+  {name:"Bourbon Barrel Aged",cat:"Barrel",price:18.00,material:4.20,labor:1.80,pkg:0.45},
+  {name:"Fleur de Sel Mini 25g",cat:"Mini",price:3.99,material:0.82,labor:0.48,pkg:0.24},
+  {name:"Honeycomb Mini 25g",cat:"Mini",price:3.99,material:0.78,labor:0.48,pkg:0.26},
+  {name:"S'mores Mini 25g",cat:"Mini",price:3.99,material:0.76,labor:0.48,pkg:0.28},
+  {name:"Mid Mountain Mini 25g",cat:"Mini",price:3.99,material:0.72,labor:0.48,pkg:0.24},
+  {name:"Honeycomb Taster 10g",cat:"Mini",price:2.99,material:0.48,labor:0.32,pkg:0.18},
+  {name:"Belize Drinking Choc",cat:"Drinking",price:14.00,material:3.80,labor:1.40,pkg:0.40},
+  {name:"Mid Mountain Drinking",cat:"Drinking",price:14.00,material:3.60,labor:1.40,pkg:0.40},
+  {name:"Origin Sampler (4-bar)",cat:"Bundle",price:48.00,material:13.80,labor:4.80,pkg:2.40},
+  {name:"Complete Collection (17)",cat:"Bundle",price:200.00,material:62.00,labor:18.00,pkg:8.00},
+];
+
+const LABOR_DATA=[
+  {stage:"Intake & setup",budgeted:4,actual:4.5,rate:16},
+  {stage:"Roasting",budgeted:8,actual:7.5,rate:16},
+  {stage:"Cracking & Winnowing",budgeted:12,actual:14,rate:16},
+  {stage:"Grinding",budgeted:24,actual:28,rate:16},
+  {stage:"Conching",budgeted:16,actual:18,rate:16},
+  {stage:"Tempering",budgeted:8,actual:9,rate:18},
+  {stage:"Molding & Setting",budgeted:12,actual:13,rate:16},
+  {stage:"Demolding",budgeted:8,actual:8.5,rate:16},
+  {stage:"QC Hold",budgeted:12,actual:14,rate:18},
+  {stage:"Packaging",budgeted:32,actual:31,rate:15},
+  {stage:"Labeling",budgeted:8,actual:8.5,rate:15},
+  {stage:"Palletizing",budgeted:4,actual:4,rate:15},
+];
+
+const FORECAST_DATA=[
+  {week:"Apr W2",actual:2200,planned:0,demand:2400,done:true},
+  {week:"Apr W3",actual:2000,planned:0,demand:2300,done:true},
+  {week:"Apr W4",actual:0,planned:2400,demand:2500,done:false},
+  {week:"May W1",actual:0,planned:2500,demand:2600,done:false},
+  {week:"May W2",actual:0,planned:2400,demand:2800,done:false},
+  {week:"May W3",actual:0,planned:2400,demand:2700,done:false},
+];
+
+const BATCH_SCHEDULE=[
+  {batch:"Batch A",start:"Apr 10",end:"Apr 17",lbs:2500,origin:"Madagascar",status:"active"},
+  {batch:"Batch B",start:"Apr 13",end:"Apr 22",lbs:2500,origin:"Peru",status:"active"},
+  {batch:"Batch C",start:"Apr 15",end:"Apr 27",lbs:2500,origin:"Ecuador",status:"active"},
+  {batch:"Batch D",start:"Apr 18",end:"May 1",lbs:2500,origin:"Mid Mountain blend",status:"scheduled"},
+  {batch:"Batch E",start:"Apr 28",end:"May 10",lbs:2500,origin:"Belize",status:"planned"},
+  {batch:"Batch F",start:"May 5",end:"May 16",lbs:2500,origin:"Madagascar",status:"planned"},
+  {batch:"Batch G",start:"May 12",end:"May 22",lbs:2500,origin:"Peru",status:"planned"},
+  {batch:"Batch H",start:"May 18",end:"May 28",lbs:2500,origin:"Mid Mountain blend",status:"planned"},
+];
+
+const MATERIALS=[
+  {name:"Cacao beans",needed:"18,000 lbs",onHand:"8,200 lbs",cover:"3.6 batches",status:"ok"},
+  {name:"Cocoa butter",needed:"3,600 lbs",onHand:"1,850 lbs",cover:"2.1 batches",status:"critical"},
+  {name:"Cane sugar",needed:"5,400 lbs",onHand:"3,100 lbs",cover:"2.3 batches",status:"low"},
+  {name:"Lecithin",needed:"320 lbs",onHand:"420 lbs",cover:"5.3 batches",status:"ok"},
+  {name:"Vanilla beans",needed:"180 oz",onHand:"680 oz",cover:"15 batches",status:"ok"},
+];
+
+const KPI_SCORECARD=[
+  {kpi:"Monthly revenue",target:"$60,000",actual:"$38,420 MTD",vs:"+$21,580 gap",status:"warn",phase:"Phase 1"},
+  {kpi:"Gross margin %",target:"55%",actual:"52%",vs:"–3pts",status:"warn",phase:"Phase 2"},
+  {kpi:"Production output",target:"10,000 lbs",actual:"~8,500 pace",vs:"–1,500 lbs",status:"warn",phase:"Phase 1"},
+  {kpi:"Cost per pound",target:"$3.75",actual:"$3.94",vs:"+$0.19",status:"warn",phase:"Phase 2"},
+  {kpi:"Yield rate",target:"97%",actual:"96.2%",vs:"–0.8pts",status:"warn",phase:"Phase 1"},
+  {kpi:"Labor hrs / batch",target:"136 hrs",actual:"148 hrs",vs:"+12 hrs",status:"warn",phase:"Phase 1"},
+  {kpi:"On-time fulfillment",target:"98%",actual:"94%",vs:"–4pts",status:"warn",phase:"Phase 3"},
+  {kpi:"Wholesale acct growth",target:"2 new/month",actual:"3 new (Apr)",vs:"+1",status:"good",phase:"Phase 3"},
+  {kpi:"Days since last order avg",target:"<30 days",actual:"22 days avg",vs:"On target",status:"good",phase:"Phase 2"},
+  {kpi:"Inventory stockouts",target:"0",actual:"1 (cocoa butter)",vs:"1 alert",status:"alert",phase:"Phase 1"},
+  {kpi:"Founder involvement",target:"Reducing",actual:"Still high",vs:"Phase 1 target",status:"warn",phase:"Phase 3"},
+  {kpi:"Batch scheduling",target:"Rolling 6-wk plan",actual:"In place",vs:"On track",status:"good",phase:"Phase 1"},
+];
+
+const ACCOUNTABILITY=[
+  {name:"Anna & Jimmy",role:"Founders",color:"#c9933a",owns:"Brand vision, product innovation, key partnerships, EU expansion strategy, final financial approval",kpi:"Revenue growth · Founder focus on brand"},
+  {name:"Production Lead",role:"Chocolatier / Ops",color:"#8b4513",owns:"Daily batch execution, roasting profiles, stage sign-offs, equipment logs, production scheduling adherence",kpi:"Yield rate · Output per batch · Labor efficiency"},
+  {name:"QC Lead",role:"QC Specialist",color:"#3a8bd4",owns:"All QC hold decisions, sensory evaluation sign-offs, moisture checks, release authority for finished goods",kpi:"QC pass rate · Defect rate · Batch rejection rate"},
+  {name:"Packaging Lead",role:"Packaging & Labeling",color:"#5a9a3a",owns:"Wrapping throughput, label accuracy, case packing, finished goods count accuracy, packaging defect rate",kpi:"Packaging speed · Label accuracy · Units per hour"},
+  {name:"Sales / BD Lead",role:"Business Development",color:"#6b3a8b",owns:"Wholesale account management, distributor relations, affiliate coordination, Shopify promotions, follow-up cadence",kpi:"Revenue per account · Days since last contact · New account adds"},
+  {name:"Warehouse Lead",role:"Inventory / Warehouse",color:"#7a6a5a",owns:"Finished goods inventory accuracy, pallet storage, fulfillment execution, raw material reorder triggers",kpi:"Inventory accuracy · Fulfillment on-time · Stockouts"},
+];
+
+// ══════════════════════════════════
+// RENDERING
+// ══════════════════════════════════
+function show(id){
+  document.querySelectorAll('.view').forEach(v=>v.classList.remove('visible'));
+  document.getElementById('view-'+id).classList.add('visible');
+  document.querySelectorAll('.sb-nav-item').forEach(n=>n.classList.remove('active'));
+  event?.currentTarget?.classList.add('active');
+  const titles={overview:'Morning Briefing',production:'Production Health',margin:'Gross Margin by SKU',batchcost:'Cost Per Batch',scenarios:'Revenue Scenarios',forecast:'Production Forecast',kpi:'KPI Cadence',accountability:'Accountability Map'};
+  document.getElementById('topTitle').textContent=titles[id]||id;
+  if(id==='forecast') renderForecast();
+  if(id==='margin') renderMarginTable();
+  if(id==='production') renderLaborTable();
+  if(id==='kpi') renderKpiScorecard();
+  if(id==='accountability') renderAccountability();
+  if(id==='forecast') renderForecastChart();
+}
+
+function renderMarginTable(){
+  const sorted=[...SKU_DATA].sort((a,b)=>{
+    const ma=1-(a.material+a.labor+a.pkg)/a.price;
+    const mb=1-(b.material+b.labor+b.pkg)/b.price;
+    return mb-ma;
+  });
+  document.getElementById('skuMarginTable').innerHTML=sorted.map(s=>{
+    const cogs=s.material+s.labor+s.pkg;
+    const margin=((1-cogs/s.price)*100).toFixed(1);
+    const m=parseFloat(margin);
+    const cls=m>=55?'green':m>=45?'amber':'red';
+    const vs=m>=55?'<span class="pill pill-green">✓ Above</span>':m>=45?'<span class="pill pill-amber">Near</span>':'<span class="pill pill-red">Below</span>';
+    return`<div class="tbl-row">
+      <div style="flex:2.5"><div class="tbl-cell bold">${s.name}</div><div class="tbl-cell muted" style="font-size:10px">${s.cat}</div></div>
+      <div class="tbl-cell mono right" style="flex:1">$${s.price.toFixed(2)}</div>
+      <div class="tbl-cell mono right" style="flex:1">$${s.material.toFixed(2)}</div>
+      <div class="tbl-cell mono right" style="flex:1">$${s.labor.toFixed(2)}</div>
+      <div class="tbl-cell mono right" style="flex:1">$${s.pkg.toFixed(2)}</div>
+      <div class="tbl-cell mono right" style="flex:1">$${cogs.toFixed(2)}</div>
+      <div class="tbl-cell ${cls} right" style="flex:1">${margin}%</div>
+      <div style="flex:.8">${vs}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderLaborTable(){
+  document.getElementById('laborTable').innerHTML=LABOR_DATA.map(r=>{
+    const variance=r.actual-r.budgeted;
+    const laborCost=r.actual*r.rate;
+    const perLb=(laborCost/2500).toFixed(3);
+    const vcls=variance<=0?'green':variance<=2?'amber':'red';
+    return`<div class="tbl-row" style="display:flex">
+      <div style="flex:2" class="tbl-cell">${r.stage}</div>
+      <div style="flex:1;text-align:right" class="tbl-cell mono">${r.budgeted} hrs</div>
+      <div style="flex:1;text-align:right" class="tbl-cell mono">${r.actual} hrs</div>
+      <div style="flex:1;text-align:right" class="tbl-cell ${vcls}">${variance>0?'+':''}${variance} hrs</div>
+      <div style="flex:1;text-align:right" class="tbl-cell mono">$${laborCost.toFixed(0)}</div>
+      <div style="flex:1;text-align:right" class="tbl-cell mono">$${perLb}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderForecastChart(){
+  const max=Math.max(...FORECAST_DATA.flatMap(d=>[d.actual||0,d.planned||0,d.demand]));
+  document.getElementById('forecastChart').innerHTML=FORECAST_DATA.map(d=>`
+    <div class="fc-month">
+      <div class="fc-bars">
+        <div class="fc-bar ${d.done?'actual':'forecast'}" style="height:${Math.round(((d.actual||d.planned)/max)*100)}%;min-height:4px" title="${d.done?d.actual+' lbs actual':d.planned+' lbs planned'}"></div>
+        <div class="fc-bar target" style="height:${Math.round((d.demand/max)*100)}%;min-height:4px" title="${d.demand} lbs demand"></div>
+      </div>
+      <div class="fc-month-label">${d.week}</div>
+    </div>`).join('');
+
+  document.getElementById('batchSchedule').innerHTML=BATCH_SCHEDULE.map(b=>{
+    const scls=b.status==='active'?'pill-gold':b.status==='scheduled'?'pill-blue':'';
+    return`<div class="tbl-row" style="display:flex;align-items:center;gap:10px;padding:9px 16px;border-bottom:1px solid var(--border)">
+      <div style="flex:1"><div class="tbl-cell bold">${b.batch}</div><div class="tbl-cell muted" style="font-size:10px">${b.origin}</div></div>
+      <div class="tbl-cell mono" style="flex:1;font-size:11px">${b.start} → ${b.end}</div>
+      <div class="tbl-cell mono" style="flex:.6;text-align:right">${b.lbs.toLocaleString()} lbs</div>
+      <div style="flex:.6;text-align:right"><span class="pill ${scls}">${b.status}</span></div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('rawMaterials').innerHTML=MATERIALS.map(m=>{
+    const scls=m.status==='ok'?'pill-green':m.status==='low'?'pill-amber':'pill-red';
+    return`<div class="tbl-row" style="display:flex;align-items:center;gap:10px;padding:9px 16px;border-bottom:1px solid var(--border)">
+      <div style="flex:2" class="tbl-cell bold">${m.name}</div>
+      <div class="tbl-cell mono muted" style="flex:1;font-size:11px">${m.onHand} on hand</div>
+      <div class="tbl-cell mono" style="flex:1;font-size:11px;text-align:right">${m.cover}</div>
+      <div style="text-align:right"><span class="pill ${scls}">${m.status}</span></div>
+    </div>`;
+  }).join('');
+}
+
+function renderKpiScorecard(){
+  document.getElementById('kpiScorecard').innerHTML=KPI_SCORECARD.map(k=>{
+    const scls=k.status==='good'?'pill-green':k.status==='alert'?'pill-red':'pill-amber';
+    const vcls=k.status==='good'?'green':k.status==='alert'?'red':'amber';
+    return`<div class="tbl-row" style="display:flex">
+      <div style="flex:2" class="tbl-cell bold">${k.kpi}</div>
+      <div style="flex:1;text-align:right" class="tbl-cell mono muted">${k.target}</div>
+      <div style="flex:1;text-align:right" class="tbl-cell mono">${k.actual}</div>
+      <div style="flex:1;text-align:right" class="tbl-cell ${vcls}">${k.vs}</div>
+      <div style="flex:.8"><span class="pill ${scls}">${k.status}</span></div>
+      <div style="flex:1.5" class="tbl-cell muted" style="font-size:11px">${k.phase}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderAccountability(){
+  document.getElementById('accountabilityChart').innerHTML=ACCOUNTABILITY.map(a=>`
+    <div class="acc-row">
+      <div class="acc-avatar" style="background:${a.color}22;color:${a.color}">${a.name.split(' ').map(w=>w[0]).join('').slice(0,2)}</div>
+      <div style="flex:1">
+        <div class="acc-name">${a.name}</div>
+        <div class="acc-role">${a.role}</div>
+        <div class="acc-owns">${a.owns}</div>
+        <div class="acc-kpi">${a.kpi}</div>
+      </div>
+    </div>`).join('');
+}
+
+// live date
+document.getElementById('liveDate').textContent=new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric',year:'numeric'});
+
+// init
+renderMarginTable();
+renderLaborTable();
+renderKpiScorecard();
+renderAccountability();
+renderForecastChart();
+</script>
+</body>
+</html>
